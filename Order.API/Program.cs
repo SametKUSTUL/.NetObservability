@@ -1,6 +1,7 @@
 ﻿using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Order.API.OpenTelemetry;
+using Order.API.OrderServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<OrderService>();
 
 builder.Services.Configure<OpenTelemetryConstants>(builder.Configuration.GetSection("OpenTelemetry"));
 var openTelemetryConstants = (builder.Configuration.GetSection("OpenTelemetry").Get<OpenTelemetryConstants>())!;
@@ -40,6 +42,8 @@ builder.Services.AddOpenTelemetry().WithTracing(options =>
     //options.AddConsoleExporter(); // Konsola export et
     options.AddOtlpExporter(); // Jaeger a export et
 });
+
+
 
 
 ActivitySourceProvider.Source = new System.Diagnostics.ActivitySource(openTelemetryConstants.ActivitySourceName,version:openTelemetryConstants.ServiceVersion);

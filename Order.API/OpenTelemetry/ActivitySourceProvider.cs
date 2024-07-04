@@ -9,5 +9,5 @@ namespace Order.API.OpenTelemetry;
 
 internal static class ActivitySourceProvider
 {
-    public static ActivitySource Source;
+    public static ActivitySource Source=null!;
 }

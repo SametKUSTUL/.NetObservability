@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Order.API.OrderServices;
 
 namespace Order.API.Controllers
 {
@@ -7,14 +7,25 @@ namespace Order.API.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
+        private readonly OrderService _orderService;
 
-        [HttpGet]
-        public IActionResult Create()
+        public OrderController(OrderService orderService)
         {
+            _orderService = orderService;
+        }
 
-            var a = 10;
-            var b = 0;
-            var c=a/b;
+        [HttpPost]
+        public async Task<IActionResult> Create(OrderCreateRequestDto requestDto)
+        {
+            #region ExceptionCase
+            //var a = 10;
+            //var b = 0;
+            //var c=a/b;
+
+            #endregion
+
+            await _orderService.CreateAsync(requestDto);
+
 
             return Ok();
         }
