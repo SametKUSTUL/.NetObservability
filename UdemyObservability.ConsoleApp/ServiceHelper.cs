@@ -11,4 +11,11 @@ internal class ServiceHelper
         Console.WriteLine($"Google dan gelen cevap:{ await serviceOne.MakeRequestToGoogle()}");
         Console.WriteLine("Work1 tamamlandi.");
     }
+
+    internal async Task Work2()
+    {
+        using var activity = ActivitySourceProvider.SourceFile.StartActivity(); // SPAN 
+        activity?.SetTag("work 2 tag", "work 2 tag value");
+        activity?.AddEvent(new System.Diagnostics.ActivityEvent("work 2 event"));
+    }
 }

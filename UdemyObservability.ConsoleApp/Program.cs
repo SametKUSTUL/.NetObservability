@@ -3,9 +3,31 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 using UdemyObservability.ConsoleApp;
 
 Console.WriteLine("Hello, World!");
+
+
+
+ActivitySource.AddActivityListener(new ActivityListener()
+{
+    ShouldListenTo = source => source.Name == OpenTelemetryConstants.ActivitySourceFileName,
+    ActivityStarted = activity =>
+    {
+        Console.WriteLine("Activity Start");
+    },
+    ActivityStopped = activity =>
+    {
+        Console.WriteLine("Activity Stop");
+    }
+});
+
+
+using var traceProvicerFile = Sdk.CreateTracerProviderBuilder()
+    .AddSource(OpenTelemetryConstants.ActivitySourceFileName)
+    .Build();
+
 
 
 using var traceProvider = Sdk.CreateTracerProviderBuilder()
@@ -25,4 +47,4 @@ using var traceProvider = Sdk.CreateTracerProviderBuilder()
     }).Build();
 
 var serviceHelper=new ServiceHelper();
-await serviceHelper.Work1();
+await serviceHelper.Work2();
