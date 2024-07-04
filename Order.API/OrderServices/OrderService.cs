@@ -1,4 +1,4 @@
-﻿using Order.API.OpenTelemetry;
+﻿using OpenTelemetry.Shared;
 using System.Diagnostics;
 
 namespace Order.API.OrderServices;

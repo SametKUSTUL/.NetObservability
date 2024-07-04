@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Order.API.OpenTelemetry;
+namespace OpenTelemetry.Shared;
 
 public class OpenTelemetryConstants
 {

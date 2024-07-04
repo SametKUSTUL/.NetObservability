@@ -1,7 +1,6 @@
-﻿using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-using Order.API.OpenTelemetry;
-using Order.API.OrderServices;
+﻿using Order.API.OrderServices;
+using OpenTelemetry.Shared;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,42 +10,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddScoped<OrderService>();
-
-builder.Services.Configure<OpenTelemetryConstants>(builder.Configuration.GetSection("OpenTelemetry"));
-var openTelemetryConstants = (builder.Configuration.GetSection("OpenTelemetry").Get<OpenTelemetryConstants>())!;
-
-builder.Services.AddOpenTelemetry().WithTracing(options =>
-{
-    options.AddSource(openTelemetryConstants.ActivitySourceName)
-    .ConfigureResource(resource =>
-    {
-        resource.AddService(openTelemetryConstants.ServiceName, serviceVersion: openTelemetryConstants.ServiceVersion);
-    });
-
-    options.AddAspNetCoreInstrumentation(aspNetCoreOptions =>
-    {
-        aspNetCoreOptions.Filter = (context) =>
-        {
-            if (!string.IsNullOrEmpty(context.Request.Path.Value))
-            {
-                return context.Request.Path.Value.Contains("api", StringComparison.InvariantCulture);
-            }
-            return false;
-        };
-
-        aspNetCoreOptions.RecordException = true;// Hatanın detaylarıda kaydedilecek.
-        
-    }); 
-    //options.AddConsoleExporter(); // Konsola export et
-    options.AddOtlpExporter(); // Jaeger a export et
-});
-
-
-
-
-ActivitySourceProvider.Source = new System.Diagnostics.ActivitySource(openTelemetryConstants.ActivitySourceName,version:openTelemetryConstants.ServiceVersion);
+builder.Services.AddOpenTelemetryExt(builder.Configuration);
 
 var app = builder.Build();
 
