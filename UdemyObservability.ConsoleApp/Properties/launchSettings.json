@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "UdemyObservability.ConsoleApp": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
