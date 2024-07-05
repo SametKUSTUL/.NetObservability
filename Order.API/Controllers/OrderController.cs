@@ -24,13 +24,8 @@ namespace Order.API.Controllers
 
             #endregion
 
-            await _orderService.CreateAsync(requestDto);
+            return Ok(await _orderService.CreateAsync(requestDto));
 
-
-            return Ok(new OrderCreateResponseDto
-            {
-                Id=new Random().Next(1,500),
-            });
         }
 
     }

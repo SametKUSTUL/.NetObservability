@@ -2,7 +2,7 @@
 {
     public record OrderCreateRequestDto
     {
-        public string UserId { get; set; } = null!;
+        public int UserId { get; set; }
         public List<OrderItemDto> Items { get; set; }=null!;
     }
 
