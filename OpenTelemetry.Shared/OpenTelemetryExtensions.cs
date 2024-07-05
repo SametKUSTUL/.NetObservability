@@ -35,7 +35,21 @@ namespace OpenTelemetry.Shared
                     };
 
                     aspNetCoreOptions.RecordException = true;// Hatanın detaylarıda kaydedilecek.
+                    aspNetCoreOptions.EnrichWithException = (activity, exception) =>
+                    {
+                        activity.SetTag("EnrichExceptionStackTrace",exception.StackTrace);
+                    };
 
+                });
+
+                options.AddEntityFrameworkCoreInstrumentation(efCoreOptions =>
+                {
+                    efCoreOptions.SetDbStatementForText=true;
+                    efCoreOptions.SetDbStatementForStoredProcedure=true;
+                    efCoreOptions.EnrichWithIDbCommand = (activity, dbCommand) =>
+                    {
+                        activity.SetTag("db.connection.string", dbCommand.Connection?.ConnectionString);
+                    };
                 });
                 //options.AddConsoleExporter(); // Konsola export et
                 options.AddOtlpExporter(); // Jaeger a export et
