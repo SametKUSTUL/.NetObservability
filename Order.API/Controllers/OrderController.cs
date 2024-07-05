@@ -24,7 +24,9 @@ namespace Order.API.Controllers
 
             #endregion
 
-            return Ok(await _orderService.CreateAsync(requestDto));
+            var result = await _orderService.CreateAsync(requestDto);
+            return StatusCode(result.StatusCode, result);
+            
 
         }
 
