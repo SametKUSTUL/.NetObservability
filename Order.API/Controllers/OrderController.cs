@@ -27,7 +27,10 @@ namespace Order.API.Controllers
             await _orderService.CreateAsync(requestDto);
 
 
-            return Ok();
+            return Ok(new OrderCreateResponseDto
+            {
+                Id=new Random().Next(1,500),
+            });
         }
 
     }

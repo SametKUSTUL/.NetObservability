@@ -1,5 +1,6 @@
 ﻿using Order.API.OrderServices;
 using OpenTelemetry.Shared;
+using Common.Shared;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<RequestAndResponseActivityMiddleware>();
 
 app.UseAuthorization();
 
