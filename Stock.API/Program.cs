@@ -1,3 +1,5 @@
+using Common.Shared;
+using OpenTelemetry.Shared;
 using Stock.API;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<StockService>();
+builder.Services.AddOpenTelemetryExt(builder.Configuration);
 
 var app = builder.Build();
 
@@ -18,6 +21,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<RequestAndResponseActivityMiddleware>();
 
 app.UseHttpsRedirection();
 
