@@ -4,6 +4,8 @@ using Common.Shared;
 using Order.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Order.API.StockServices;
+using Order.API.RedisServices;
+using StackExchange.Redis;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<StockService>();
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var redisService = sp.GetService<RedisService>();
+    return redisService!.GetConnectionMultiplexer;
+
+});
+builder.Services.AddSingleton(_ =>
+{
+    return new RedisService(builder.Configuration);
+});
 builder.Services.AddOpenTelemetryExt(builder.Configuration);
 
 
