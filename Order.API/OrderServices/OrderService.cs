@@ -1,6 +1,7 @@
 ﻿using Common.Shared.DTOs;
 using OpenTelemetry.Shared;
 using Order.API.Models;
+using Order.API.RedisServices;
 using Order.API.StockServices;
 using System.Diagnostics;
 
@@ -11,15 +12,21 @@ public class OrderService
 
     private readonly AppDbContext _context;
     private readonly StockService _stockService;
+    private readonly RedisService _redisService;
 
-    public OrderService(AppDbContext context, StockService stockService)
+    public OrderService(AppDbContext context, StockService stockService, RedisService redisService)
     {
         _context = context;
         _stockService = stockService;
+        _redisService = redisService;
     }
 
     public async Task<ResponseDto<OrderCreateResponseDto>> CreateAsync(OrderCreateRequestDto request)
     {
+        await _redisService.GetDb(0).StringSetAsync("UserId", request.UserId);
+
+
+        var redisUserId=_redisService.GetDb(0).StringGetAsync("UserId");
 
         Activity.Current?.SetTag("AspNetCore(instrumentation) tag1", "AspNetCore(instrumentation) tag1 value1");
 
@@ -45,15 +52,15 @@ public class OrderService
         _context.SaveChanges();
 
 
-        var (isSuccess, failMessage)= await _stockService.CheckStockAndPaymentStartAsync(new Common.Shared.DTOs.StockCheckAndPaymentProcessRequestDto
+        var (isSuccess, failMessage) = await _stockService.CheckStockAndPaymentStartAsync(new Common.Shared.DTOs.StockCheckAndPaymentProcessRequestDto
         {
-            OrderCode=newOrder.OrderCode,
-            OrderItems=request.Items,
+            OrderCode = newOrder.OrderCode,
+            OrderItems = request.Items,
         });
 
         if (!isSuccess)
         {
-            return ResponseDto<OrderCreateResponseDto>.Fail(StatusCodes.Status500InternalServerError,failMessage);
+            return ResponseDto<OrderCreateResponseDto>.Fail(StatusCodes.Status500InternalServerError, failMessage);
         }
 
         activity?.SetTag("order user id", request.UserId);

@@ -74,6 +74,13 @@ namespace OpenTelemetry.Shared
                         activity.SetTag("http.response.body", responseContent);
                     };
                 });
+
+                options.AddRedisInstrumentation(httpRedisOptions => { 
+                
+                    httpRedisOptions.SetVerboseDatabaseStatements = true;
+                    
+                
+                });
                 //options.AddConsoleExporter(); // Konsola export et
                 options.AddOtlpExporter(); // Jaeger a export et
             });
