@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System.Diagnostics;
 
 namespace OpenTelemetry.Shared
 {
@@ -49,6 +50,28 @@ namespace OpenTelemetry.Shared
                     efCoreOptions.EnrichWithIDbCommand = (activity, dbCommand) =>
                     {
                         activity.SetTag("db.connection.string", dbCommand.Connection?.ConnectionString);
+                    };
+                });
+
+                options.AddHttpClientInstrumentation(httpClientOptions =>
+                {
+                    httpClientOptions.EnrichWithHttpRequestMessage = async (activity, request) =>
+                    {
+                        var requestContent=string.Empty;
+                        if (request.Content != null)
+                        {
+                            requestContent=await request.Content.ReadAsStringAsync();
+                        }
+                        activity.SetTag("http.request.body", requestContent);
+                    };
+                    httpClientOptions.EnrichWithHttpResponseMessage = async (activity, response) =>
+                    {
+                        var responseContent=string.Empty;
+                        if (response.Content != null)
+                        {
+                            responseContent=await response.Content.ReadAsStringAsync();
+                        }
+                        activity.SetTag("http.response.body", responseContent);
                     };
                 });
                 //options.AddConsoleExporter(); // Konsola export et

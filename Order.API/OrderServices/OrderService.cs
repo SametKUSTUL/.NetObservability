@@ -1,5 +1,7 @@
-﻿using OpenTelemetry.Shared;
+﻿using Common.Shared.DTOs;
+using OpenTelemetry.Shared;
 using Order.API.Models;
+using Order.API.StockServices;
 using System.Diagnostics;
 
 namespace Order.API.OrderServices;
@@ -8,13 +10,15 @@ public class OrderService
 {
 
     private readonly AppDbContext _context;
+    private readonly StockService _stockService;
 
-    public OrderService(AppDbContext context)
+    public OrderService(AppDbContext context, StockService stockService)
     {
         _context = context;
+        _stockService = stockService;
     }
 
-    public async Task<OrderCreateResponseDto> CreateAsync(OrderCreateRequestDto requestDto)
+    public async Task<ResponseDto<OrderCreateResponseDto>> CreateAsync(OrderCreateRequestDto request)
     {
 
         Activity.Current?.SetTag("AspNetCore(instrumentation) tag1", "AspNetCore(instrumentation) tag1 value1");
@@ -28,8 +32,8 @@ public class OrderService
             Created = DateTime.Now,
             OrderCode = Guid.NewGuid().ToString(),
             Status = OrderStatus.Success,
-            UserId = requestDto.UserId,
-            Items = requestDto.Items.Select(x => new OrderItem()
+            UserId = request.UserId,
+            Items = request.Items.Select(x => new OrderItem()
             {
                 Count = x.Count,
                 ProductId = x.ProductId,
@@ -40,16 +44,24 @@ public class OrderService
         _context.Orders.Add(newOrder);
         _context.SaveChanges();
 
-        activity?.SetTag("order user id", requestDto.UserId);
 
+        var (isSuccess, failMessage)= await _stockService.CheckStockAndPaymentStartAsync(new Common.Shared.DTOs.StockCheckAndPaymentProcessRequestDto
+        {
+            OrderCode=newOrder.OrderCode,
+            OrderItems=request.Items,
+        });
 
+        if (!isSuccess)
+        {
+            return ResponseDto<OrderCreateResponseDto>.Fail(StatusCodes.Status500InternalServerError,failMessage);
+        }
+
+        activity?.SetTag("order user id", request.UserId);
         activity?.AddEvent(new("Sipariş süreci tamamlandi"));
 
-
-        return new OrderCreateResponseDto()
+        return ResponseDto<OrderCreateResponseDto>.Success(StatusCodes.Status200OK, new OrderCreateResponseDto()
         {
             Id = newOrder.Id,
-        };
-
+        });
     }
 }
