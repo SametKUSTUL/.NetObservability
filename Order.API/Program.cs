@@ -6,9 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Order.API.StockServices;
 using Order.API.RedisServices;
 using StackExchange.Redis;
+using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog(Logging.Shared.Logging.ConfigureLogging);
 
 // Add services to the container.
 
